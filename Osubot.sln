@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Osubot", "Osubot.csproj", "{BF68456F-04B5-4BB5-B4EB-D22677D6AA8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF68456F-04B5-4BB5-B4EB-D22677D6AA8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF68456F-04B5-4BB5-B4EB-D22677D6AA8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF68456F-04B5-4BB5-B4EB-D22677D6AA8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF68456F-04B5-4BB5-B4EB-D22677D6AA8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {154F182E-250B-4C05-9BEB-82F54E9170D3}
+	EndGlobalSection
+EndGlobal
