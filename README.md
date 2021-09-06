@@ -14,6 +14,6 @@ A bot that plays osu!
 Add "Bot" folder to osu skins.<br>
 Run exe(not virus I promise) located in "publish folder"<br>
 Choose the amount of keys in the song. (To change amount restart the script)<br>
-Ctr + c to quit
+Ctrl + c to quit
 
 (I made this for fun for my computer specifically so probably wont even work on another one)
