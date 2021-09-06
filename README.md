@@ -10,7 +10,7 @@ A bot that plays osu!
 - Default keybinds
 
 ## How to
-***You need .net core 3.1***
+***You need .net core 3.1***<br>
 Add "Bot" folder to osu skins.<br>
 Run exe(not virus I promise) located in "publish folder"<br>
 Choose the amount of keys in the song. (To change amount restart the script)<br>
