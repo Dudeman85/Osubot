@@ -87,15 +87,31 @@ public class Input
         XUp = 0x0100
     }
 
-    private Dictionary<char, ushort> keyCodes = new Dictionary<char, ushort>() { { 'a', 0x1E }, { 'b', 0x30 }, { 'c', 0x2E }, { 'd', 0x20 }, { 'e', 0x12 }, { 'f', 0x21 }, { 'g', 0x22 }, { 'h', 0x23 }, { 'i', 0x17 }, { 'j', 0x24 }, { 'k', 0x25 }, { 'l', 0x26 }, { 'm', 0x32 }, { 'n', 0x31 }, { 'o', 0x18 }, { 'p', 0x19 }, { 'q', 0x10 }, { 'r', 0x13 }, { 's', 0x1F }, { 't', 0x14 }, { 'u', 0x16 }, { 'v', 0x2F }, { 'w', 0x11 }, { 'x', 0x2D }, { 'y', 0x15 }, { 'z', 0x2C } };
+    private Dictionary<string, ushort> keyCodes = new Dictionary<string, ushort>() {
+        { "a", 0x41 }, { "b", 0x42 }, { "c", 0x43 }, { "d", 0x44 }, { "e", 0x45 }, { "f", 0x46 }, { "g", 0x47 }, { "h", 0x48 }, { "i", 0x49 },
+        { "j", 0x4a }, { "k", 0x4b }, { "l", 0x4c }, { "m", 0x4d }, { "n", 0x4e }, { "o", 0x4f }, { "p", 0x50 }, { "q", 0x51 }, { "r", 0x52 },
+        { "s", 0x53 }, { "t", 0x54 }, { "u", 0x55 }, { "v", 0x56 }, { "w", 0x57 }, { "x", 0x58 }, { "y", 0x59 }, { "z", 0x5a }, { "0", 0x30 },
+        { "1", 0x31}, { "2", 0x32}, { "3", 0x33}, { "4", 0x34}, { "5", 0x35}, { "6", 0x36}, { "7", 0x37}, { "8", 0x38}, { "9", 0x39}, { "np0", 0x60},
+        { "np1", 0x61}, { "np2", 0x62}, { "np3", 0x63}, { "np4", 0x64}, { "np5", 0x65}, { "np6", 0x66}, { "np7", 0x67}, { "np8", 0x68}, { "np9", 0x69},
+        { "multiply", 0x6a}, { "add", 0x6b}, { "seperator", 0x6c}, { "subtract", 0x6d}, { "decimal", 0x6e}, { "divide", 0x6f}, { "f1", 0x70},
+        { "f2", 0x71}, { "f3", 0x72}, { "f4", 0x73}, { "f5", 0x74}, { "f6", 0x75}, { "f7", 0x76}, { "f8", 0x77}, { "f9", 0x78}, { "f10", 0x79},
+        { "f11", 0x7a}, { "f12", 0x7b}, { "numlock", 0x90}, { "srolllock", 0x91}, { "lshift", 0xa0}, { "rshift", 0xa1}, { "lcontrol", 0xa2},
+        { "rcontrol", 0xa3}, { "lalt", 0xa4}, { "ralt", 0xa5}, { "backspace", 0x08}, { "tab", 0x09}, { "clear", 0x0c}, { "enter", 0x0d},
+        { "space", 0x20}, { "end", 0x23}, { "home", 0x24}, { "left", 0x25}, { "up", 0x26}, { "right", 0x27}, { "down", 0x28}, { "insert", 0x2d},
+        { "delete", 0x2e} }; //I want die
 
-    public bool KeyDown(string keys)
+    //Function inserts a keydown event for every key in keys
+    public bool KeyDown(string[] keys)
     {
         INPUT[] input = new INPUT[keys.Length];
+        //For each key to be pressed 
         for (int i = 0; i < input.Length; i++)
         {
-            if (!Char.IsLetter(keys[i]))
+            //If a string in the input does not match a known key, return failure
+            if (!keyCodes.ContainsKey(keys[i]))
                 return false;
+
+            //Add a new INPUT type into the list of inputs
             input[i] = new INPUT
             {
                 type = (int)InputType.Keyboard,
@@ -103,25 +119,31 @@ public class Input
                 {
                     ki = new KeyboardInput
                     {
-                        wVk = 0,
-                        wScan = keyCodes[Char.ToLower(keys[i])],
-                        dwFlags = (uint)(KeyEventF.KeyDown | KeyEventF.Scancode),
+                        wVk = keyCodes[keys[i].ToLower()], //Virtual Key Code of the key to be sent
+                        wScan = 0,
+                        dwFlags = (uint)(KeyEventF.KeyDown), //Press Key
                         dwExtraInfo = GetMessageExtraInfo()
                     }
                 }
             };
         }
+        //Send the created input class and return success
         SendInput((uint)input.Length, input, Marshal.SizeOf(typeof(INPUT)));
         return true;
     }
 
-    public bool KeyUp(string keys)
+    //Function inserts a keyup event for every key in keys
+    public bool KeyUp(string[] keys)
     {
         INPUT[] input = new INPUT[keys.Length];
+        //For each key to be pressed 
         for (int i = 0; i < input.Length; i++)
         {
-            if (!Char.IsLetter(keys[i]))
+            //If a string in the input does not match a known key, return failure
+            if (!keyCodes.ContainsKey(keys[i]))
                 return false;
+
+            //Add a new INPUT type into the list of inputs
             input[i] = new INPUT
             {
                 type = (int)InputType.Keyboard,
@@ -129,25 +151,30 @@ public class Input
                 {
                     ki = new KeyboardInput
                     {
-                        wVk = 0,
-                        wScan = keyCodes[Char.ToLower(keys[i])],
-                        dwFlags = (uint)(KeyEventF.KeyUp | KeyEventF.Scancode),
+                        wVk = keyCodes[keys[i].ToString()], //Virtual Key Code of the key to be sent
+                        wScan = 0,
+                        dwFlags = (uint)(KeyEventF.KeyUp), //Release Key
                         dwExtraInfo = GetMessageExtraInfo()
                     }
                 }
             };
         }
+        //Send the created input class and return success
         SendInput((uint)input.Length, input, Marshal.SizeOf(typeof(INPUT)));
         return true;
     }
 
-    public bool KeyPress(string keys, int time = 0)
+    //Function to press and release each key in keys for time ms
+    public bool KeyPress(string[] keys, int time = 0)
     {
         if (!KeyDown(keys))
             return false;
+
         Thread.Sleep(time);
+
         if (!KeyUp(keys))
             return false;
+
         return true;
     }
 }
