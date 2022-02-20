@@ -1,19 +1,14 @@
 # Osubot
-A bot that plays osu!
-(Log out of osu! or you will get banned)
-
-#### Only works on:
-- Osu!mania
-- 1080p output
-- Windows 10
-- Custom texturepack
-- Default keybinds
+A bot that plays Osu kinda well
 
 ## How to
-***You need .net core 3.1***<br>
-Add "Bot" folder to osu skins.<br>
-Run exe(not virus I promise) located in "publish folder"<br>
-Choose the amount of keys in the song. (To change amount restart the script)<br>
-Ctrl + c to quit
+1. ***You need to install .NET core 3.1***
+2. Add "Bot" folder to osu skins and set it to your current skin
+3. Run Osubot.exe located in "publish v1.0" folder
+4. Choose the speed, press [esc] to change it
 
-(I made this for fun for my computer specifically so probably wont even work on another one)
+#### Currently only works on:
+- Osu!mania
+- 1080p output
+- Provided texturepack
+- Default keybinds
