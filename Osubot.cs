@@ -22,40 +22,39 @@ namespace Osubot
         public static extern bool BitBlt(IntPtr hdc, int x, int y, int cx, int cy, IntPtr hdcSrc, int x1, int y1, int rop);
 
         //Public Vars
-        public static Color[] colors = new Color[] { Color.FromArgb(255, 0, 200, 0), Color.FromArgb(255, 0, 0, 200), Color.FromArgb(255, 127, 127, 127) };
+        public static Color[] colors = new Color[] { Color.FromArgb(255, 0, 200, 0), Color.FromArgb(255, 0, 0, 200), Color.FromArgb(255, 127, 127, 127), Color.FromArgb(255, 255, 255, 255) };
+        public static int[] modePixels = new int[] { 644, 711, 778, 869 };
         public static int[] pixelPositions = new int[] { 372, 407, 475, 542, 612, 680, 713 };
-        public static string[][] allKeys = new string[][] { new string[] { "d", "f", "j", "k" }, new string[] { "d", "f", "b", "j", "k" }, new string[] { "s", "d", "f", "j", "k", "l" }, 
-            new string[] { "s", "d", "f", "b", "j", "k", "l" }, new string[] { "s", "d", "space", "j", "k", "e", "r", "ralt", "u", "i"} };
+        public static int[] fuckyPixelPositions = new int[] { 372, 407, 475, 542, 612, 799, 866, 934, 1000, 1006};
+        public static string[][] allKeys = new string[][] { new string[] { "d", "f", "j", "k" }, new string[] { "d", "f", "b", "j", "k" }, new string[] { "s", "d", "f", "j", "k", "l" },
+            new string[] { "s", "d", "f", "b", "j", "k", "l" }, new string[0], new string[0], new string[] { "d", "f", "space", "j", "k", "e", "r", "m", "u", "i"} };
         public static string[] keys;
-        public static int speed = 8;
+        public static int speed = 0;
         public static int delay;
-        public static int mode;
+        public static int mode = 0;
 
-        public static Bitmap screenPixel = new Bitmap(342, 1);
+        public static Bitmap screenPixels = new Bitmap(706, 1);
         public static Color[] cols;
         public static bool[] lockedKey;
         public static bool[] pushedLong;
         public static bool[] upLong;
+        public static bool inSong = false;
 
-        //Start Methods
-        public static Color[] GetColors()
+        //Gets Pixels from the screen starting at x, y and ending at x + width, y + height
+        public static Bitmap GetPixels(int x, int y, int width, int height)
         {
-            using (Graphics gdest = Graphics.FromImage(screenPixel))
+            using (Graphics gdest = Graphics.FromImage(screenPixels))
             {
                 using (Graphics gsrc = Graphics.FromHwnd(GetDesktopWindow()))
                 {
                     IntPtr hSrcDC = gsrc.GetHdc();
                     IntPtr hDC = gdest.GetHdc();
-                    BitBlt(hDC, 0, 0, 706, 1, hSrcDC, 305, 577, (int)CopyPixelOperation.SourceCopy);
+                    BitBlt(hDC, 0, 0, width, height, hSrcDC, x, y, (int)CopyPixelOperation.SourceCopy);
                     gdest.ReleaseHdc();
                     gsrc.ReleaseHdc();
                 }
             }
-            for (int i = 0; i < mode; i++)
-            {
-                cols[i] = screenPixel.GetPixel(pixelPositions[i] - pixelPositions[0], 0);
-            }
-            return cols;
+            return screenPixels;
         }
 
         //Delay Key Press for Short (Green) Notes
@@ -89,31 +88,34 @@ namespace Osubot
 
             while (true)
             {
-                Thread ton = new Thread(new ParameterizedThreadStart(PushKeyDown));
-                Thread toff = new Thread(new ParameterizedThreadStart(PushKeyUp));
-
-                on = new List<string>();
-                off = new List<string>();
-
-                for (int i = 0; i < mode; i++)
+                if (inSong)
                 {
-                    if (pushedLong[i] && !lockedKey[i])
-                    {
-                        lockedKey[i] = true;
-                        upLong[i] = false;
-                        on.Add(keys[i]);
-                    }
-                    else if (!pushedLong[i] && !upLong[i])
-                    {
-                        upLong[i] = true; 
-                        off.Add(keys[i]);
-                    }
-                }
+                    Thread ton = new Thread(new ParameterizedThreadStart(PushKeyDown));
+                    Thread toff = new Thread(new ParameterizedThreadStart(PushKeyUp));
 
-                if (on.Count > 0)
-                    ton.Start(on.ToArray());
-                if (off.Count > 0)
-                    toff.Start(off.ToArray());
+                    on = new List<string>();
+                    off = new List<string>();
+
+                    for (int i = 0; i < mode; i++)
+                    {
+                        if (pushedLong[i] && !lockedKey[i])
+                        {
+                            lockedKey[i] = true;
+                            upLong[i] = false;
+                            on.Add(keys[i]);
+                        }
+                        else if (!pushedLong[i] && !upLong[i])
+                        {
+                            upLong[i] = true;
+                            off.Add(keys[i]);
+                        }
+                    }
+
+                    if (on.Count > 0)
+                        ton.Start(on.ToArray());
+                    if (off.Count > 0)
+                        toff.Start(off.ToArray());
+                }
 
                 Thread.Sleep(1);
             }
@@ -123,21 +125,18 @@ namespace Osubot
         {
             while (true)
             {
-                //Select 4, 5,or 7 key mode
-                while (mode != 4 && mode != 5 && mode != 6 && mode != 7)
+                //Select Speed
+                while (speed < 1 || speed > 40)
                 {
-                    Console.Write("\n4, 5, 6, or 7 key: ");
+                    Console.Write("Enter game speed (1-40): ");
                     try
                     {
-                        mode = int.Parse(Console.ReadKey().KeyChar.ToString());
+                        speed = int.Parse(Console.ReadLine());
+                        delay = (int)MathF.Round(4160 * MathF.Pow(speed, -1) - 10);
                     }
                     catch { }
                 }
-
-                //Not Done
-                speed = int.Parse(Console.ReadLine());
-                delay = (int)MathF.Round(4160 * MathF.Pow(speed, -1) - 10);
-
+                mode = 4;
                 //Initialize Variables depending on the game mode
                 keys = allKeys[mode - 4];
                 cols = new Color[mode];
@@ -150,37 +149,80 @@ namespace Osubot
                 longOutput.Start();
                 List<string> output;
 
-                //Main Thread
+                //Main Thread for short (green) notes
                 while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
                 {
                     Thread t = new Thread(new ParameterizedThreadStart(PushOutputThread));
                     output = new List<string>();
 
-                    Color[] color = GetColors();
+                    //Get pixels from the screen
+                    Bitmap bitmap = GetPixels(305, 577, 706, 1);
+                    //Get the important pixels and their colors
                     for (int i = 0; i < mode; i++)
                     {
-                        if (color[i].G >= colors[0].G && color[i].R <= 200) //Check Pixels for short (green) notes
-                        {
-                            if (!lockedKey[i])
-                            {
-                                lockedKey[i] = true;
-                                output.Add(keys[i]);
-                                continue;
-                            }
-                            continue;
-                        }
-                        if (color[i].B >= colors[1].B && color[i].R <= 200) //Check Pixels for long (blue) notes
-                        {
-                            pushedLong[i] = true;
-                            continue;
-                        }
-                        lockedKey[i] = false;
-                        pushedLong[i] = false;
+                        if(mode < 10)
+                            cols[i] = bitmap.GetPixel(pixelPositions[i] - 305, 0);
+                        else
+                            cols[i] = bitmap.GetPixel(fuckyPixelPositions[i] - 305, 0);
+                    }
+                    
+                    if (bitmap.GetPixel(0, 0) == colors[2] && !inSong)
+                    {
+                        inSong = true;
+
+                        mode = 4;
+                        if (bitmap.GetPixel(modePixels[0] - 305, 0) == colors[3])
+                            mode = 5;
+                        if (bitmap.GetPixel(modePixels[1] - 305, 0) == colors[3])
+                            mode = 6;
+                        if (bitmap.GetPixel(modePixels[2] - 305, 0) == colors[3])
+                            mode = 7;
+                        if (bitmap.GetPixel(modePixels[3] - 305, 0) == colors[3])
+                            mode = 10;
+
+                        Console.WriteLine("Entered " + mode + " key song");
+
+                        //Initialize Variables depending on the game mode
+                        keys = allKeys[mode - 4];
+                        cols = new Color[mode];
+                        lockedKey = new bool[mode];
+                        pushedLong = new bool[mode];
+                        upLong = new bool[mode];
+                    }
+                    if (Math.Abs(bitmap.GetPixel(0, 0).R - 127) > 50 && inSong)
+                    {
+                        inSong = false;
+                        Console.WriteLine("Exited Song");
                     }
 
-                    if (output.Count > 0)
+                    //Loop through each row of notes
+                    if (inSong)
                     {
-                        t.Start(output.ToArray());
+                        for (int i = 0; i < mode; i++)
+                        {
+                            if (cols[i].G >= colors[0].G && cols[i].R <= 200) //Check Pixels for short (green) notes
+                            {
+                                if (!lockedKey[i])
+                                {
+                                    lockedKey[i] = true;
+                                    output.Add(keys[i]);
+                                    continue;
+                                }
+                                continue;
+                            }
+                            if (cols[i].B >= colors[1].B && cols[i].R <= 200) //Check Pixels for long (blue) notes
+                            {
+                                pushedLong[i] = true;
+                                continue;
+                            }
+                            lockedKey[i] = false;
+                            pushedLong[i] = false;
+                        }
+
+                        if (output.Count > 0)
+                        {
+                            t.Start(output.ToArray());
+                        }
                     }
 
                     Thread.Sleep(1);
